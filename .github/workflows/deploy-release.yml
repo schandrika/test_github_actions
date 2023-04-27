@@ -134,15 +134,15 @@ jobs:
 
       - name: Do something with a failing build
         if: steps.wait-for-tests.outputs.conclusion == 'failure'
-        steps:
-          - run: echo "tests on main fail"
+        run: echo "tests on main fail"
+
       - name: Do something with a passing build
         if: steps.wait-for-tests.outputs.conclusion == 'success'
-        steps:
+        run: echo "tests on main pass"
           #---------------------------------------------------------------
           # create build artifacts to be included as part of release
           #---------------------------------------------------------------
-          - run: echo "tests on main success"
+
 
 #          - name: Create build artifacts
 #            run: |
