@@ -1,0 +1,42 @@
+[tool.poetry]
+name = "test-github-action"
+version = "0.4.0-rc"
+description = "The volttron-testing library contains classes and utilities for interacting with a VOLTTRON instance."
+authors = ["VOLTTRON Team <volttron@pnnl.gov>"]
+license = "Apache License 2.0"
+readme = "README.md"
+repository = "https://github.com/schandrika/test_github_actions"
+homepage = "https://github.com/schandrika/test_github/actions"
+keywords = []
+packages = [ { include = "dummy", from = "src" } ]
+classifiers = [
+    "Programming Language :: Python :: 3 :: Only",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Other Audience",
+    "License :: OSI Approved :: Apache Software License"
+]
+
+[tool.poetry.dependencies]
+python = ">=3.10,<4.0"
+pytest = "^6.2.5"
+mock = "^4.0.3"
+
+[tool.yapfignore]
+ignore_patterns = [
+    ".venv/**",
+    ".pytest_cache/**",
+    "dist/**",
+    "docs/**"
+]
+
+[tool.yapf]
+based_on_style = "pep8"
+spaces_before_comment = 4
+column_limit = 99
+split_before_logical_operator = true
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,176 @@
+name: Deploy Release Artifacts
+
+on:
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  LANG: en_US.utf-8
+  LC_ALL: en_US.utf-8
+  PYTHON_VERSION: '3.10'
+  PROJECT_NAME: volttron-postgresql-historian
+  POETRY_VERSION: '1.4'
+  # patch, minor, major, prepatch, preminor, premajor, prerelease
+  BUMP_RULE: prerelease
+  PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+
+jobs:
+
+  deploy-pre-release:
+    runs-on: ubuntu-22.04
+    steps:
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+
+      #----------------------------------------------
+      #       check-out repo and set-up python
+      #----------------------------------------------
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: develop
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        id: setup-python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      #----------------------------------------------
+      #  -----  install & configure poetry  -----
+      #----------------------------------------------
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ env.POETRY_VERSION }}
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          installer-parallel: true
+
+      #----------------------------------------------
+      #       load cached venv if cache exists
+      #----------------------------------------------
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+
+      #----------------------------------------------
+      # install dependencies if cache does not exist
+      #----------------------------------------------
+      - name: Install dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: poetry install --no-interaction --no-root
+
+      #----------------------------------------------
+      # install your root project, if required
+      #----------------------------------------------
+      - name: Install library
+        run: |
+          poetry install --no-interaction
+
+      #----------------------------------------------
+      # bump version number for patch
+      #----------------------------------------------
+      - name: Bump Version
+        run: |
+          # current_tag is the last tagged release in the repository.   From there
+          # we need to remove the v from the beginning of the tag.
+          if ! $(git tag -l "v*" = ''); then
+            # uses -V which is version sort to keep it monotonically increasing.
+            current_tag=$(git tag -l "v*" | grep --invert-match '-' | sort --reverse -V  | sed -n 1p)
+            current_tag=${current_tag#?}  
+            # current_tag is now the version we want to set our poetry version so
+            # that we can bump the version
+            poetry version ${current_tag}
+            poetry version ${BUMP_RULE} --no-interaction
+            
+          else
+            # very first release. start with 0.1.0rc0
+            current_tag=0.1.0rc0
+            poetry version ${current_tag}
+          fi
+          
+          NEW_TAG=v$(poetry version --short)
+
+          # Finally because we want to be able to use the variable in later
+          # steps we set a NEW_TAG environmental variable
+          echo "NEW_TAG=$(echo ${NEW_TAG})" >> $GITHUB_ENV
+
+      #--------------------------------------------------------------
+      # Create a new releases/new_tag
+      #--------------------------------------------------------------
+      - name: Create a new releases branch
+        run: |
+          git checkout -b releases/${NEW_TAG}
+          git push
+
+      #--------------------------------------------------------------
+      # merge changes back to main
+      #--------------------------------------------------------------
+      - name: Merge changes back to main
+        run: |
+          git checkout main
+          git merge releases/${NEW_TAG}
+          git push
+
+      #------------------------------------------------------------------------
+      # wait for tests to succeed on main. If test fail this workflow will exit
+      #------------------------------------------------------------------------
+      - name: Wait for tests to succeed
+        uses: lewagon/wait-on-check-action@v1.3.1
+        with:
+          ref: main
+          check-name: run-tests
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 20
+
+      - name: Wait for tests to succeed
+        uses: fountainhead/action-wait-for-check@v1.1.0
+        id: wait-for-tests
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          checkName: run-tests
+          ref: main
+
+      - name: Do something with a failing build
+        if: steps.wait-for-tests.outputs.conclusion == 'failure'
+        steps:
+          - run: echo "tests on main fail"
+      - name: Do something with a passing build
+        if: steps.wait-for-tests.outputs.conclusion == 'success'
+        steps:
+          #---------------------------------------------------------------
+          # create build artifacts to be included as part of release
+          #---------------------------------------------------------------
+          - run: echo "tests on main success"
+#          - name: Create build artifacts
+#            run: |
+#              poetry build -vvv
+#
+#          - uses: ncipollo/release-action@v1
+#            with:
+#              artifacts: "dist/*.gz,dist/*.whl"
+#              artifactErrorsFailBuild: true
+#              generateReleaseNotes: true
+#              commit: ${{ github.ref }}
+#              # check bump_rule and set accordingly
+#              prerelease: true
+#              tag: ${{ env.NEW_TAG }}
+#              token: ${{ secrets.GITHUB_TOKEN }}
+#
+    #      - name: Publish to pypi
+    #        uses: JRubics/poetry-publish@v1.7
+    #        with:
+    #          # These are only needed when using test.pypi
+    #          repository_name: testpypi
+    #          repository_url: https://test.pypi.org/legacy/
+    #          pypi_token: ${{ secrets.PYPI_TOKEN }}
+    #          ignore_dev_requirements: "yes"
