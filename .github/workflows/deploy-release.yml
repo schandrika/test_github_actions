@@ -15,6 +15,8 @@ env:
   POETRY_VERSION: '1.4'
   # patch, minor, major, prepatch, preminor, premajor, prerelease
   BUMP_RULE: prerelease
+  PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+
 jobs:
 
   deploy-pre-release:
@@ -130,21 +132,45 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 20
 
-      #---------------------------------------------------------------
-      # create build artifacts to be included as part of release
-      #---------------------------------------------------------------
-      - name: Create build artifacts
-        run: |
-          poetry build -vvv
-
-      - uses: ncipollo/release-action@v1
+      - name: Wait for tests to succeed
+        uses: fountainhead/action-wait-for-check@v1.1.0
+        id: wait-for-tests
         with:
-          artifacts: "dist/*.gz,dist/*.whl"
-          artifactErrorsFailBuild: true
-          generateReleaseNotes: true
-          commit: ${{ github.ref }}
-          # check bump_rule and set accordingly
-          prerelease: true
-          tag: ${{ env.NEW_TAG }}
           token: ${{ secrets.GITHUB_TOKEN }}
+          checkName: run-tests
+          ref: main
 
+      - name: Do something with a failing build
+        if: steps.wait-for-tests.outputs.conclusion == 'failure'
+        steps:
+          - run: echo "tests on main fail"
+      - name: Do something with a passing build
+        if: steps.wait-for-tests.outputs.conclusion == 'success'
+        steps:
+          #---------------------------------------------------------------
+          # create build artifacts to be included as part of release
+          #---------------------------------------------------------------
+          - run: echo "tests on main success"
+#          - name: Create build artifacts
+#            run: |
+#              poetry build -vvv
+#
+#          - uses: ncipollo/release-action@v1
+#            with:
+#              artifacts: "dist/*.gz,dist/*.whl"
+#              artifactErrorsFailBuild: true
+#              generateReleaseNotes: true
+#              commit: ${{ github.ref }}
+#              # check bump_rule and set accordingly
+#              prerelease: true
+#              tag: ${{ env.NEW_TAG }}
+#              token: ${{ secrets.GITHUB_TOKEN }}
+#
+    #      - name: Publish to pypi
+    #        uses: JRubics/poetry-publish@v1.7
+    #        with:
+    #          # These are only needed when using test.pypi
+    #          repository_name: testpypi
+    #          repository_url: https://test.pypi.org/legacy/
+    #          pypi_token: ${{ secrets.PYPI_TOKEN }}
+    #          ignore_dev_requirements: "yes"
