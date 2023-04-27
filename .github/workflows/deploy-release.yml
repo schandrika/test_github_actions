@@ -1,7 +1,6 @@
 name: Deploy Release Artifacts
 
-on:
-  workflow_dispatch:
+on: [workflow_dispatch]
 
 defaults:
   run:
