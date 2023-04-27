@@ -125,14 +125,6 @@ jobs:
       # wait for tests to succeed on main. If test fail this workflow will exit
       #------------------------------------------------------------------------
       - name: Wait for tests to succeed
-        uses: lewagon/wait-on-check-action@v1.3.1
-        with:
-          ref: main
-          check-name: run-tests
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 20
-
-      - name: Wait for tests to succeed
         uses: fountainhead/action-wait-for-check@v1.1.0
         id: wait-for-tests
         with:
@@ -151,6 +143,7 @@ jobs:
           # create build artifacts to be included as part of release
           #---------------------------------------------------------------
           - run: echo "tests on main success"
+
 #          - name: Create build artifacts
 #            run: |
 #              poetry build -vvv
