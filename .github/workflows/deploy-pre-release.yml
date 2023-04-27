@@ -118,8 +118,8 @@ jobs:
           tag: ${{ env.NEW_TAG }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish pre-release to pypi
-        if: github.repository == "eclipse-volttron/${{env.PROJECT_NAME}}"
-        run: |
-          poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
-          poetry publish
+#      - name: Publish pre-release to pypi
+#        if: github.repository == "eclipse-volttron/${{env.PROJECT_NAME}}"
+#        run: |
+#          poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
+#          poetry publish
