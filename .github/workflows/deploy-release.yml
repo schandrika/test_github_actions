@@ -12,7 +12,7 @@ env:
   LC_ALL: en_US.utf-8
   PYTHON_VERSION: '3.10'
   PROJECT_NAME: volttron-postgresql-historian
-  POETRY_VERSION: '1.4'
+  POETRY_VERSION: '1.4.0'
   # patch, minor, major, prepatch, preminor, premajor, prerelease
   BUMP_RULE: prerelease
   PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
