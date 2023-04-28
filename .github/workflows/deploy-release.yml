@@ -108,6 +108,9 @@ jobs:
       # Create a new releases/new_tag
       #--------------------------------------------------------------
       - name: Create a new releases branch
+        permissions:
+          contents: write  # To push a branch
+          pull-requests: write  # To create a PR from that branch
         env:
           GITHUB_TOKEN: ${{ secrets.GA_PAT_TOKEN }}
         run: |
@@ -118,6 +121,9 @@ jobs:
       # merge changes back to main
       #--------------------------------------------------------------
       - name: Merge changes back to main
+        permissions:
+          contents: write  # To push a branch
+          pull-requests: write  # To create a PR from that branch
         env:
           GITHUB_TOKEN: ${{ secrets.GA_PAT_TOKEN }}
         run: |
