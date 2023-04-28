@@ -114,6 +114,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GA_PAT_TOKEN }}
         run: |
+          git config user.email "deploy-release-action@pnl.gov"
+          git config user.name "Deploy Release Github Action"
           git checkout -b releases/${NEW_TAG}
           git push --set-upstream origin releases/${NEW_TAG}
 
@@ -124,6 +126,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GA_PAT_TOKEN }}
         run: |
+          git config user.email "deploy-release-action@pnl.gov"
+          git config user.name "Deploy Release Github Action"
           git checkout main
           git merge releases/${NEW_TAG}
           git push 
