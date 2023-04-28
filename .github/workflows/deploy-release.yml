@@ -21,6 +21,9 @@ jobs:
 
   deploy-pre-release:
     runs-on: ubuntu-22.04
+    permissions:
+      contents: write  # To push a branch
+      pull-requests: write  # To create a PR from that branch
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
@@ -108,9 +111,6 @@ jobs:
       # Create a new releases/new_tag
       #--------------------------------------------------------------
       - name: Create a new releases branch
-        permissions:
-          contents: write  # To push a branch
-          pull-requests: write  # To create a PR from that branch
         env:
           GITHUB_TOKEN: ${{ secrets.GA_PAT_TOKEN }}
         run: |
@@ -121,9 +121,6 @@ jobs:
       # merge changes back to main
       #--------------------------------------------------------------
       - name: Merge changes back to main
-        permissions:
-          contents: write  # To push a branch
-          pull-requests: write  # To create a PR from that branch
         env:
           GITHUB_TOKEN: ${{ secrets.GA_PAT_TOKEN }}
         run: |
