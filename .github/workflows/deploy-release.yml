@@ -111,8 +111,8 @@ jobs:
       # Create a new releases/new_tag
       #--------------------------------------------------------------
       - name: Create a new releases branch
-        env:
-          GITHUB_TOKEN: ${{ secrets.GA_PAT_TOKEN }}
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GA_PAT_TOKEN }}
         run: |
           git config user.email "deploy-release-action@pnl.gov"
           git config user.name "Deploy Release Github Action"
@@ -123,8 +123,8 @@ jobs:
       # merge changes back to main
       #--------------------------------------------------------------
       - name: Merge changes back to main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GA_PAT_TOKEN }}
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GA_PAT_TOKEN }}
         run: |
           git config user.email "deploy-release-action@pnl.gov"
           git config user.name "Deploy Release Github Action"
