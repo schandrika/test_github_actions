@@ -12,7 +12,7 @@ env:
   LC_ALL: en_US.utf-8
   PYTHON_VERSION: '3.10'
   PROJECT_NAME: volttron-postgresql-historian
-  POETRY_VERSION: '1.4'
+  POETRY_VERSION: '1.4.0'
   # patch, minor, major, prepatch, preminor, premajor, prerelease
   BUMP_RULE: prerelease
   PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
@@ -21,6 +21,9 @@ jobs:
 
   deploy-pre-release:
     runs-on: ubuntu-22.04
+    permissions:
+      contents: write  # To push a branch
+      pull-requests: write  # To create a PR from that branch
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
@@ -108,30 +111,30 @@ jobs:
       # Create a new releases/new_tag
       #--------------------------------------------------------------
       - name: Create a new releases branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GA_PAT_TOKEN }}
         run: |
+          git config user.email "deploy-release-action@pnl.gov"
+          git config user.name "Deploy Release Github Action"
           git checkout -b releases/${NEW_TAG}
-          git push
+          git push --set-upstream origin releases/${NEW_TAG}
 
       #--------------------------------------------------------------
       # merge changes back to main
       #--------------------------------------------------------------
       - name: Merge changes back to main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GA_PAT_TOKEN }}
         run: |
+          git config user.email "deploy-release-action@pnl.gov"
+          git config user.name "Deploy Release Github Action"
           git checkout main
           git merge releases/${NEW_TAG}
-          git push
+          git push 
 
       #------------------------------------------------------------------------
       # wait for tests to succeed on main. If test fail this workflow will exit
       #------------------------------------------------------------------------
-      - name: Wait for tests to succeed
-        uses: lewagon/wait-on-check-action@v1.3.1
-        with:
-          ref: main
-          check-name: run-tests
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 20
-
       - name: Wait for tests to succeed
         uses: fountainhead/action-wait-for-check@v1.1.0
         id: wait-for-tests
@@ -142,15 +145,16 @@ jobs:
 
       - name: Do something with a failing build
         if: steps.wait-for-tests.outputs.conclusion == 'failure'
-        steps:
-          - run: echo "tests on main fail"
+        run: echo "tests on main fail"
+
       - name: Do something with a passing build
         if: steps.wait-for-tests.outputs.conclusion == 'success'
-        steps:
+        run: echo "tests on main pass"
           #---------------------------------------------------------------
           # create build artifacts to be included as part of release
           #---------------------------------------------------------------
-          - run: echo "tests on main success"
+
+
 #          - name: Create build artifacts
 #            run: |
 #              poetry build -vvv
