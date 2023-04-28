@@ -146,7 +146,7 @@ jobs:
 
       - name: Do something with a failing build
         if: steps.wait-for-tests.outputs.conclusion != 'success'
-        run: echo "tests on main did not succeed. conclusion is {steps.wait-for-tests.outputs.conclusion}"
+        run: echo "tests on main did not succeed. conclusion is ${{ steps.wait-for-tests.outputs.conclusion }}"
 
       - name: Do something with a passing build
         if: steps.wait-for-tests.outputs.conclusion == 'success'
