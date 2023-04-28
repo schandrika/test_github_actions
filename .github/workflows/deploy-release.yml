@@ -37,6 +37,7 @@ jobs:
         with:
           fetch-depth: 0
           ref: develop
+          token: ${{ secrets.GA_PAT_TOKEN }}
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
         id: setup-python
