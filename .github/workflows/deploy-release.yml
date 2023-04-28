@@ -108,6 +108,8 @@ jobs:
       # Create a new releases/new_tag
       #--------------------------------------------------------------
       - name: Create a new releases branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GA_PAT_TOKEN }}
         run: |
           git checkout -b releases/${NEW_TAG}
           git push --set-upstream origin releases/${NEW_TAG}
@@ -116,6 +118,8 @@ jobs:
       # merge changes back to main
       #--------------------------------------------------------------
       - name: Merge changes back to main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GA_PAT_TOKEN }}
         run: |
           git checkout main
           git merge releases/${NEW_TAG}
