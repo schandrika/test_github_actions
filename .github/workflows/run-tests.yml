@@ -1,19 +1,6 @@
 name: Run Pytests
 
-on:
-  push:
-    paths:
-      - '**.py'
-      - '**.yaml'
-      - '**.yml'
-      - '**.toml'
-  pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
-    paths:
-      - '**.py'
+on: push
 
 defaults:
   run:
