@@ -37,6 +37,7 @@ jobs:
         with:
           fetch-depth: 0
           ref: develop
+          persist-credentials: false
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
         id: setup-python
