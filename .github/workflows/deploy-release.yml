@@ -139,7 +139,7 @@ jobs:
         uses: fountainhead/action-wait-for-check@v1.1.0
         id: wait-for-tests
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GA_PAT_TOKEN }}
           checkName: run-tests
           ref: main
 
