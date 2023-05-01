@@ -116,6 +116,7 @@ jobs:
         run: |
           git config --global user.email "deploy-release-action@pnl.gov"
           git config --global user.name "Deploy Release Github Action"
+          git checkout develop
           git checkout -b releases/${NEW_TAG}
           git push --set-upstream origin releases/${NEW_TAG}
 
