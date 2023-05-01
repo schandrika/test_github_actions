@@ -11,7 +11,7 @@ env:
   LANG: en_US.utf-8
   LC_ALL: en_US.utf-8
   PYTHON_VERSION: '3.10'
-  PROJECT_NAME: volttron-postgresql-historian
+  PROJECT_NAME: test-github-action
   POETRY_VERSION: '1.4.0'
   # patch, minor, major, prepatch, preminor, premajor, prerelease
   BUMP_RULE: prerelease
@@ -138,13 +138,15 @@ jobs:
           token: ${{ env.GITHUB_TOKEN }}
           checkName: run-tests
           ref: main
-          timeoutSeconds: 60
+          timeoutSeconds: 5
 
       - name: Do something with a failing build
         if: steps.wait-for-tests.outputs.conclusion != 'success'
         run: |
           echo "tests on main did not succeed. conclusion is ${{ steps.wait-for-tests.outputs.conclusion }}"
+          git checkout main
           git reset --hard HEAD~1 
+          git push origin HEAD --force
           git branch -d releases/${NEW_TAG}
           git push origin --delete releases/${NEW_TAG}
 
