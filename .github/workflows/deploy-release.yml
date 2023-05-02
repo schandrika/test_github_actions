@@ -43,17 +43,21 @@ jobs:
       - name: Do a git merge dry run
         id: merge-dry-run
         run: |
+          git config --global user.email "deploy-release-action@pnl.gov"
+          git config --global user.name "Deploy Release Github Action"
           git checkout main
           git merge --no-commit --no-ff develop
+
+      - name: Abort merge dry-run
+        run: |
+          git merge --abort
 
       - name: Check if merge had conflicts.
         # if there is conflict and there is no merge strategy set then abort merge and exit
         if: steps.merge-dry-run.outcome != 'success' && !${{ env.MERGE_STRATEGY }}
         run: |
-          git merge --abort
           echo "Merge to main has conflicts. Either do a manual merge and release or set the environment variable MERGE_STRATEGY and re-run action"
           exit 1
-
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
         id: setup-python
@@ -129,8 +133,6 @@ jobs:
       #--------------------------------------------------------------
       - name: Create a new releases branch
         run: |
-          git config --global user.email "deploy-release-action@pnl.gov"
-          git config --global user.name "Deploy Release Github Action"
           git checkout develop
           git checkout -b releases/${NEW_TAG}
           git push --set-upstream origin releases/${NEW_TAG}
