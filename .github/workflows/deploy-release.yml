@@ -151,7 +151,7 @@ jobs:
       - name: Merge changes back to main
         run: |
           git checkout main
-          git merge releases/${NEW_TAG}
+          git merge ${{ github.event.inputs.merge_strategy }} releases/${NEW_TAG}
           git push 
 
       #------------------------------------------------------------------------
