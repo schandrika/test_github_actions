@@ -3,7 +3,10 @@ name: Deploy Release Artifacts
 on:
   workflow_dispatch:
     inputs:
-      merge_strategy: ''
+      merge_strategy:
+        description: 'merge strategy and strategy options. Defaults to recursive merge'
+        required: false
+        default: ''
 
 defaults:
   run:
