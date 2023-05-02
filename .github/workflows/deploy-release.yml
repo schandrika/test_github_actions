@@ -7,6 +7,7 @@ on:
         description: 'merge strategy and strategy options. Defaults to recursive merge'
         required: false
         default: ''
+        type: string
 
 defaults:
   run:
