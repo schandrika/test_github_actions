@@ -40,6 +40,21 @@ jobs:
           ref: develop
           token: ${{ env.GITHUB_TOKEN }}
 
+      - name: Do a git merge dry run
+        id: merge-dry-run
+        run: |
+          git checkout main
+          git merge --no-commit --no-ff develop
+
+      - name: Check if merge had conflicts.
+        # if there is conflict and there is no merge strategy set then abort merge and exit
+        if: steps.merge-dry-run.outcome != 'success' && !${{ env.MERGE_STRATEGY }}
+        run: |
+          git merge --abort
+          echo "Merge to main has conflicts. Either do a manual merge and release or set the environment variable MERGE_STRATEGY and re-run action"
+          exit 1
+
+
       - name: Set up Python ${{ env.PYTHON_VERSION }}
         id: setup-python
         uses: actions/setup-python@v4
