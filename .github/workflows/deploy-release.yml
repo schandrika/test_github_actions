@@ -53,7 +53,7 @@ jobs:
           git config --global user.name "Deploy Release Github Action"
           git checkout main
           git merge --no-commit --no-ff develop
-          continue-on-error: true
+        continue-on-error: true
 
       - name: Abort merge dry-run
         run: |
