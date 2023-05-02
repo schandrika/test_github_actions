@@ -61,7 +61,7 @@ jobs:
 
       - name: Check if merge had conflicts.
         # if there is conflict and there is no merge strategy set then abort merge and exit
-        if: steps.merge-dry-run.outcome != 'success' && ! ${{ github.event.inputs.merge_strategy }}
+        if: steps.merge-dry-run.outcome != 'success' &&  ${{ github.event.inputs.merge_strategy }} != ''
         run: |
           echo "merge strategy is ${{ github.event.inputs.merge_strategy }}"
           echo "Merge to main has conflicts. Either do a manual merge and release or set input merge_strategy and re-run action"
