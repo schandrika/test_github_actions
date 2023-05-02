@@ -2,6 +2,8 @@ name: Deploy Release Artifacts
 
 on:
   workflow_dispatch:
+    inputs:
+      merge_strategy: ''
 
 defaults:
   run:
@@ -47,6 +49,7 @@ jobs:
           git config --global user.name "Deploy Release Github Action"
           git checkout main
           git merge --no-commit --no-ff develop
+          continue-on-error: true
 
       - name: Abort merge dry-run
         run: |
@@ -54,9 +57,9 @@ jobs:
 
       - name: Check if merge had conflicts.
         # if there is conflict and there is no merge strategy set then abort merge and exit
-        if: steps.merge-dry-run.outcome != 'success' && !${{ env.MERGE_STRATEGY }}
+        if: steps.merge-dry-run.outcome != 'success' && !${{ github.event.inputs.merge_strategy }}
         run: |
-          echo "Merge to main has conflicts. Either do a manual merge and release or set the environment variable MERGE_STRATEGY and re-run action"
+          echo "Merge to main has conflicts. Either do a manual merge and release or set input merge_strategy and re-run action"
           exit 1
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
