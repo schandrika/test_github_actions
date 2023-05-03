@@ -28,7 +28,7 @@ env:
   BUMP_RULE: prerelease
   PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
   TEST_PYPI_TOKEN: ${{ secrets.TEST_PYPI_TOKEN }}
-  GITHUB_TOKEN: ${{ secrets.GA_PAT_TOKEN }}
+ # GITHUB_TOKEN: ${{ secrets.GA_PAT_TOKEN }}
 
 jobs:
 
