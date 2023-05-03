@@ -113,6 +113,7 @@ jobs:
       #----------------------------------------------
       - name: Install library
         run: |
+          git checkout develop
           poetry install --no-interaction 
 
       #----------------------------------------------
@@ -144,14 +145,16 @@ jobs:
           # Finally because we want to be able to use the variable in later
           # steps we set a NEW_TAG environmental variable
           echo "NEW_TAG=$(echo ${NEW_TAG})" >> $GITHUB_ENV
+          git restore pyproject.toml 
 
       #--------------------------------------------------------------
       # Create a new releases/new_tag
       #--------------------------------------------------------------
       - name: Create a new releases branch
         run: |
-          git checkout develop
           git checkout -b releases/${NEW_TAG}
+          poetry version ${NEW_TAG#?}
+          git commit -m "updated version to ${NEW_TAG}"
           git push --set-upstream origin releases/${NEW_TAG}
 
       #--------------------------------------------------------------
