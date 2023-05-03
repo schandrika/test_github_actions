@@ -115,6 +115,7 @@ jobs:
         run: |
           # current_tag is the last tagged release in the repository.   From there
           # we need to remove the v from the beginning of the tag.
+          echo "Bump rule is ${{ env.BUMP_RULE }}"
           if ! $(git tag -l "v*" = ''); then
             # uses -V which is version sort to keep it monotonically increasing.
             current_tag=$(git tag -l "v*" | grep --invert-match '-' | sort --reverse -V  | sed -n 1p)
@@ -122,10 +123,11 @@ jobs:
             # current_tag is now the version we want to set our poetry version so
             # that we can bump the version
             poetry version ${current_tag}
-            poetry version ${BUMP_RULE} --no-interaction
+            poetry version ${{ env.BUMP_RULE }} --no-interaction
             
           else
             # very first release. start with 0.1.0rc0
+            echo "First release. Setting tag as 0.1.0rc0"
             current_tag=0.1.0rc0
             poetry version ${current_tag}
           fi
@@ -175,35 +177,37 @@ jobs:
           git push origin HEAD --force
           git branch -d releases/${NEW_TAG}
           git push origin --delete releases/${NEW_TAG}
+          echo "reverted changes to main and removed release branch"
+          exit 1
 
-      - name: Do something with a passing build
-        if: steps.wait-for-tests.outputs.conclusion == 'success'
-        run: echo "tests on main pass"
-          #---------------------------------------------------------------
-          # create build artifacts to be included as part of release
-          #---------------------------------------------------------------
+#        - name: Do something with a passing build
+#          if: steps.wait-for-tests.outputs.conclusion == 'success'
+#          run: echo "tests on main pass"
+        #---------------------------------------------------------------
+        # create build artifacts to be included as part of release
+        #---------------------------------------------------------------
 
 
-#          - name: Create build artifacts
-#            run: |
-#              poetry build -vvv
-#
-#          - uses: ncipollo/release-action@v1
-#            with:
-#              artifacts: "dist/*.gz,dist/*.whl"
-#              artifactErrorsFailBuild: true
-#              generateReleaseNotes: true
-#              commit: ${{ github.ref }}
-#              # check bump_rule and set accordingly
-#              prerelease: true
-#              tag: ${{ env.NEW_TAG }}
-#              token: ${{ secrets.GITHUB_TOKEN }}
-#
-    #      - name: Publish to pypi
-    #        uses: JRubics/poetry-publish@v1.7
-    #        with:
-    #          # These are only needed when using test.pypi
-    #          repository_name: testpypi
-    #          repository_url: https://test.pypi.org/legacy/
-    #          pypi_token: ${{ secrets.PYPI_TOKEN }}
-    #          ignore_dev_requirements: "yes"
+      - name: Create build artifacts
+        run: |
+          poetry build -vvv
+
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: "dist/*.gz,dist/*.whl"
+          artifactErrorsFailBuild: true
+          generateReleaseNotes: true
+          commit: ${{ github.ref }}
+          # check bump_rule and set accordingly
+          prerelease: ${{ env.BUMP_RULE == 'prerelease'  }}
+          tag: ${{ env.NEW_TAG }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to pypi
+        uses: JRubics/poetry-publish@v1.7
+        with:
+          # These are only needed when using test.pypi
+          repository_name: testpypi
+          repository_url: https://test.pypi.org/legacy/
+          pypi_token: ${{ secrets.TEST_PYPI_TOKEN }}
+          ignore_dev_requirements: "yes"
