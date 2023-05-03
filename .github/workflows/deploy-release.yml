@@ -208,11 +208,17 @@ jobs:
           tag: ${{ env.NEW_TAG }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish to pypi
-        uses: JRubics/poetry-publish@v1.7
-        with:
-          # These are only needed when using test.pypi
-          repository_name: testpypi
-          repository_url: https://test.pypi.org/legacy/
-          pypi_token: ${{ secrets.TEST_PYPI_TOKEN }}
-          ignore_dev_requirements: "yes"
+#      - name: Publish to pypi
+#        uses: JRubics/poetry-publish@v1.7
+#        with:
+#          # These are only needed when using test.pypi
+#          repository_name: testpypi
+#          repository_url: https://test.pypi.org/legacy/
+#          pypi_token: ${{ secrets.TEST_PYPI_TOKEN }}
+#          ignore_dev_requirements: "yes"
+
+      - name: Publish to test pypi
+        run: |
+          poetry config repositories.test-pypi https://test.pypi.org/legacy/
+          poetry config pypi-token.test-pypi ${{ secrets.TEST_PYPI_TOKEN }}
+          poetry publish -r test-pypi
