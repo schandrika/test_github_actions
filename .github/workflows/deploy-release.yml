@@ -140,6 +140,7 @@ jobs:
           # Finally because we want to be able to use the variable in later
           # steps we set a NEW_TAG environmental variable
           echo "NEW_TAG=$(echo ${NEW_TAG})" >> $GITHUB_ENV
+          # we don't want to update pyproject.toml yet. don't want this change to create merge conflict
           git restore pyproject.toml
           
 
@@ -149,8 +150,6 @@ jobs:
       - name: Create a new releases branch
         run: |
           git checkout -b releases/${NEW_TAG}
-          poetry version ${NEW_TAG#?}
-          git add pyproject.toml
           git commit -m "updated version to ${NEW_TAG}"
           git push --set-upstream origin releases/${NEW_TAG}
 
@@ -194,6 +193,17 @@ jobs:
           echo "reverted changes to main and removed release branch"
           exit 1
 
+      - name: Set correct version number in pyproject.toml
+        run: |
+          poetry version ${NEW_TAG#?}
+          git add pyproject.toml
+          git commit -m "updated version in pyproject.toml"
+          git push
+          git checkout releases/${NEW_TAG}
+          poetry version ${NEW_TAG#?}
+          git add pyproject.toml
+          git commit -m "updated version in pyproject.toml"
+          git push
 
       - name: Create build artifacts
         run: |
