@@ -1,5 +1,6 @@
 [tool.poetry]
 name = "test-github-action"
+version = "0.1.0rc2"
 description = "The volttron-testing library contains classes and utilities for interacting with a VOLTTRON instance."
 authors = ["VOLTTRON Team <volttron@pnnl.gov>"]
 license = "Apache License 2.0"
