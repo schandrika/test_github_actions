@@ -27,8 +27,6 @@ env:
   BUMP_RULE: prerelease
   PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
   TEST_PYPI_TOKEN: ${{ secrets.TEST_PYPI_TOKEN }}
-  #GITHUB_TOKEN: ${{ secrets.GA_PAT_TOKEN }}
-  POETRY_VERSION: '1.4.0'
 
 jobs:
 
@@ -50,8 +48,6 @@ jobs:
         with:
           fetch-depth: 0
           ref: develop
-          # else we won't be able to use PAT for merge to main and trigger workflow
-          # persist-credentials: false
 
       - name: Do a git merge dry run
         id: merge-dry-run
@@ -84,12 +80,11 @@ jobs:
       #  -----  install & configure poetry  -----
       #----------------------------------------------
       - name: Install Poetry
-        uses: snok/install-poetry@v1
+        uses: snok/install-poetry@v1.3.3
         with:
           virtualenvs-create: true
           virtualenvs-in-project: true
           installer-parallel: true
-          version: ${{ env.POETRY_VERSION }}
 
       #----------------------------------------------
       #       load cached venv if cache exists
@@ -173,7 +168,7 @@ jobs:
         id: run-tests-on-main
         run: |
           poetry run pytest --timeout=${{ inputs.run_tests_wait }} tests
-          
+        continue-on-error: true
 
       #------------------------------------------------------------------------
       # wait for tests to succeed on main. If test fail this workflow will exit
@@ -199,13 +194,6 @@ jobs:
           echo "reverted changes to main and removed release branch"
           exit 1
 
-#        - name: Do something with a passing build
-#          if: steps.wait-for-tests.outputs.conclusion == 'success'
-#          run: echo "tests on main pass"
-        #---------------------------------------------------------------
-        # create build artifacts to be included as part of release
-        #---------------------------------------------------------------
-
 
       - name: Create build artifacts
         run: |
@@ -221,15 +209,6 @@ jobs:
           prerelease: ${{ env.BUMP_RULE == 'prerelease'  }}
           tag: ${{ env.NEW_TAG }}
           token: ${{ secrets.GITHUB_TOKEN }}
-
-#      - name: Publish to pypi
-#        uses: JRubics/poetry-publish@v1.7
-#        with:
-#          # These are only needed when using test.pypi
-#          repository_name: testpypi
-#          repository_url: https://test.pypi.org/legacy/
-#          pypi_token: ${{ secrets.TEST_PYPI_TOKEN }}
-#          ignore_dev_requirements: "yes"
 
       - name: Publish to test pypi
         run: |
