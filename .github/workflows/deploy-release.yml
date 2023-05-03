@@ -50,6 +50,7 @@ jobs:
         with:
           fetch-depth: 0
           ref: develop
+          # else we won't be able to use PAT for merge to main and trigger workflow
           persist-credentials: false
 
       - name: Do a git merge dry run
@@ -148,9 +149,6 @@ jobs:
       # Create a new releases/new_tag
       #--------------------------------------------------------------
       - name: Create a new releases branch
-        # Use github token for this one so that workflow is not triggered in new release branch
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git checkout develop
           git checkout -b releases/${NEW_TAG}
