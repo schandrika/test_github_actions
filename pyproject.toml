@@ -20,6 +20,13 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = ">=3.10,<4.0"
+zmq = "^0.0.0"
+
+[tool.poetry.group.docs.dependencies]
+tzdata = "^2023.3"
+
+[tool.poetry.group.dev.dependencies]
+pytest-timeout = "^2.1.0"
 pytest = "^6.2.5"
 mock = "^4.0.3"
 
