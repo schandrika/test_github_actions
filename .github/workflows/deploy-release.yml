@@ -27,11 +27,12 @@ env:
   # patch, minor, major, prepatch, preminor, premajor, prerelease
   BUMP_RULE: prerelease
   PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+  TEST_PYPI_TOKEN: ${{ secrets.TEST_PYPI_TOKEN }}
   GITHUB_TOKEN: ${{ secrets.GA_PAT_TOKEN }}
 
 jobs:
 
-  deploy-pre-release:
+  deploy-release:
     runs-on: ubuntu-22.04
     permissions:
       contents: write  # To push a branch
@@ -49,7 +50,6 @@ jobs:
         with:
           fetch-depth: 0
           ref: develop
-          token: ${{ env.GITHUB_TOKEN }}
 
       - name: Do a git merge dry run
         id: merge-dry-run
@@ -149,7 +149,7 @@ jobs:
       - name: Create a new releases branch
         # Use github token for this one so that workflow is not triggered in new release branch
         env:
-          GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git checkout develop
           git checkout -b releases/${NEW_TAG}
@@ -223,5 +223,5 @@ jobs:
       - name: Publish to test pypi
         run: |
           poetry config repositories.test-pypi https://test.pypi.org/legacy/
-          poetry config pypi-token.test-pypi ${{ secrets.TEST_PYPI_TOKEN }}
+          poetry config pypi-token.test-pypi ${{ env.TEST_PYPI_TOKEN }}
           poetry publish -r test-pypi
