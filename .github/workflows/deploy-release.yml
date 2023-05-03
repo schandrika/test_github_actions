@@ -23,12 +23,12 @@ env:
   LC_ALL: en_US.utf-8
   PYTHON_VERSION: '3.10'
   PROJECT_NAME: test-github-action
-  POETRY_VERSION: '1.4.0'
   # patch, minor, major, prepatch, preminor, premajor, prerelease
   BUMP_RULE: prerelease
   PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
   TEST_PYPI_TOKEN: ${{ secrets.TEST_PYPI_TOKEN }}
-
+  #GITHUB_TOKEN: ${{ secrets.GA_PAT_TOKEN }}
+  POETRY_VERSION: '1.4.0'
 
 jobs:
 
@@ -50,6 +50,8 @@ jobs:
         with:
           fetch-depth: 0
           ref: develop
+          # else we won't be able to use PAT for merge to main and trigger workflow
+          # persist-credentials: false
 
       - name: Do a git merge dry run
         id: merge-dry-run
@@ -84,10 +86,10 @@ jobs:
       - name: Install Poetry
         uses: snok/install-poetry@v1
         with:
-          version: ${{ env.POETRY_VERSION }}
           virtualenvs-create: true
           virtualenvs-in-project: true
           installer-parallel: true
+          version: ${{ env.POETRY_VERSION }}
 
       #----------------------------------------------
       #       load cached venv if cache exists
@@ -111,7 +113,8 @@ jobs:
       #----------------------------------------------
       - name: Install library
         run: |
-          poetry install --no-interaction
+          git checkout develop
+          poetry install --no-interaction 
 
       #----------------------------------------------
       # bump version number for patch
@@ -142,46 +145,52 @@ jobs:
           # Finally because we want to be able to use the variable in later
           # steps we set a NEW_TAG environmental variable
           echo "NEW_TAG=$(echo ${NEW_TAG})" >> $GITHUB_ENV
+          git restore pyproject.toml
+          
 
       #--------------------------------------------------------------
       # Create a new releases/new_tag
       #--------------------------------------------------------------
       - name: Create a new releases branch
-        # Use github token for this one so that workflow is not triggered in new release branch
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git checkout develop
           git checkout -b releases/${NEW_TAG}
+          poetry version ${NEW_TAG#?}
+          git add pyproject.toml
+          git commit -m "updated version to ${NEW_TAG}"
           git push --set-upstream origin releases/${NEW_TAG}
 
       #--------------------------------------------------------------
       # merge changes back to main
       #--------------------------------------------------------------
       - name: Merge changes back to main with PAT
-        env:
-          GITHUB_TOKEN: ${{ secrets.GA_PAT_TOKEN }}
+
         run: |
           git checkout main
           git merge ${{ github.event.inputs.merge_strategy }} releases/${NEW_TAG}
           git push 
 
+      - name: Run tests on main branch
+        id: run-tests-on-main
+        run: |
+          poetry run pytest --timeout=${{ inputs.run_tests_wait }} tests
+          
+
       #------------------------------------------------------------------------
       # wait for tests to succeed on main. If test fail this workflow will exit
       #------------------------------------------------------------------------
-      - name: Wait for tests to succeed
-        uses: fountainhead/action-wait-for-check@v1.1.0
-        id: wait-for-tests
-        with:
-          token: ${{ env.GITHUB_TOKEN }}
-          checkName: run-tests
-          ref: main
-          timeoutSeconds: 120
+#      - name: Wait for tests to succeed
+#        uses: fountainhead/action-wait-for-check@v1.1.0
+#        id: wait-for-tests
+#        with:
+#          token: ${{ env.GITHUB_TOKEN }}
+#          checkName: run-tests
+#          ref: main
+#          timeoutSeconds: ${{ inputs.run_tests_wait }}
 
       - name: Do something with a failing build
-        if: steps.wait-for-tests.outputs.conclusion != 'success'
+        if: steps.run-tests-on-main.outputs.conclusion != 'success'
         run: |
-          echo "tests on main did not succeed. conclusion is ${{ steps.wait-for-tests.outputs.conclusion }}"
+          echo "tests on main did not succeed. conclusion is ${{ steps.run-tests-on-main.outputs.conclusion }}"
           git checkout main
           git reset --hard HEAD~1 
           git push origin HEAD --force
@@ -200,7 +209,7 @@ jobs:
 
       - name: Create build artifacts
         run: |
-          poetry build -vvv
+          poetry build -vvv 
 
       - uses: ncipollo/release-action@v1
         with:
