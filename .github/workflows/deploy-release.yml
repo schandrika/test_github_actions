@@ -222,5 +222,5 @@ jobs:
       - name: Publish to test pypi
         run: |
           poetry config repositories.test-pypi https://test.pypi.org/legacy/
-          poetry config pypi-token.test-pypi ${{ env.TEST_PYPI_TOKEN }}
+          poetry config pypi-token.test-pypi ${{ secrets.TEST_PYPI_TOKEN }}
           poetry publish -r test-pypi
