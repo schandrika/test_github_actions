@@ -145,6 +145,7 @@ jobs:
           # Finally because we want to be able to use the variable in later
           # steps we set a NEW_TAG environmental variable
           echo "NEW_TAG=$(echo ${NEW_TAG})" >> $GITHUB_ENV
+          git status
           git restore pyproject.toml 
 
       #--------------------------------------------------------------
