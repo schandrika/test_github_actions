@@ -145,10 +145,8 @@ jobs:
           # Finally because we want to be able to use the variable in later
           # steps we set a NEW_TAG environmental variable
           echo "NEW_TAG=$(echo ${NEW_TAG})" >> $GITHUB_ENV
-          git status
           git restore pyproject.toml
-          echo "after git restore  pyproject.toml"
-          git status
+          
 
       #--------------------------------------------------------------
       # Create a new releases/new_tag
@@ -157,6 +155,7 @@ jobs:
         run: |
           git checkout -b releases/${NEW_TAG}
           poetry version ${NEW_TAG#?}
+          git add pyproject.toml
           git commit -m "updated version to ${NEW_TAG}"
           git push --set-upstream origin releases/${NEW_TAG}
 
