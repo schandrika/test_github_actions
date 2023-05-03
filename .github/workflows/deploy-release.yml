@@ -150,7 +150,6 @@ jobs:
       - name: Create a new releases branch
         run: |
           git checkout -b releases/${NEW_TAG}
-          git commit -m "updated version to ${NEW_TAG}"
           git push --set-upstream origin releases/${NEW_TAG}
 
       #--------------------------------------------------------------
