@@ -147,6 +147,9 @@ jobs:
       # Create a new releases/new_tag
       #--------------------------------------------------------------
       - name: Create a new releases branch
+        # Use github token for this one so that workflow is not triggered in new release branch
+        env:
+          GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
         run: |
           git checkout develop
           git checkout -b releases/${NEW_TAG}
