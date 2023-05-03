@@ -171,7 +171,7 @@ jobs:
           token: ${{ env.GITHUB_TOKEN }}
           checkName: run-tests
           ref: main
-          timeoutSeconds: github.event.inputs.run_tests_wait
+          timeoutSeconds: ${{ github.event.inputs.run_tests_wait }}
 
       - name: Do something with a failing build
         if: steps.wait-for-tests.outputs.conclusion != 'success'
