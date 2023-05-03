@@ -183,9 +183,9 @@ jobs:
 #          timeoutSeconds: ${{ inputs.run_tests_wait }}
 
       - name: Do something with a failing build
-        if: steps.run-tests-on-main.outputs.conclusion != 'success'
+        if: steps.run-tests-on-main.outputs.exit_code != 0
         run: |
-          echo "tests on main did not succeed. conclusion is ${{ steps.run-tests-on-main.outputs }}"
+          echo "tests on main did not succeed. exit code is ${{ steps.run-tests-on-main.outputs.exit_code }}"
           git checkout main
           git reset --hard HEAD~1 
           git push origin HEAD --force
