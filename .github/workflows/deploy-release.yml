@@ -185,7 +185,7 @@ jobs:
       - name: Do something with a failing build
         if: steps.run-tests-on-main.outputs.conclusion != 'success'
         run: |
-          echo "tests on main did not succeed. conclusion is ${{ steps.run-tests-on-main.outputs.conclusion }}"
+          echo "tests on main did not succeed. conclusion is ${{ steps.run-tests-on-main.outputs }}"
           git checkout main
           git reset --hard HEAD~1 
           git push origin HEAD --force
