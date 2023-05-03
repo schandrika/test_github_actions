@@ -146,7 +146,9 @@ jobs:
           # steps we set a NEW_TAG environmental variable
           echo "NEW_TAG=$(echo ${NEW_TAG})" >> $GITHUB_ENV
           git status
-          git restore pyproject.toml 
+          git restore pyproject.toml
+          echo "after git restore  pyproject.toml"
+          git status
 
       #--------------------------------------------------------------
       # Create a new releases/new_tag
