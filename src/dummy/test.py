@@ -1,2 +1,2 @@
 
-print('Hello, world - v2 failure6')
+print('Hello, world - v2 failure7')
