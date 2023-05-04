@@ -206,6 +206,8 @@ jobs:
 
       - name: Create build artifacts
         run: |
+          # set the right version in pyproject.toml before build and publish
+          poetry version ${NEW_TAG#?} 
           poetry build -vvv 
 
       - uses: ncipollo/release-action@v1
