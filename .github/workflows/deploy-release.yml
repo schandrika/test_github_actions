@@ -220,6 +220,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${NEW_TAG}
+          tag_name: ${{ env.NEW_TAG }}
 
-
+      - name: if publish to pypi failed delete release and tag on github
+        if: steps.publish-to-pypi.outcome != 'success'
+        run: |
+          exit 1
