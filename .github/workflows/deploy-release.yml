@@ -122,6 +122,7 @@ jobs:
           if ! $(git tag -l "v*" = ''); then
             # uses -V which is version sort to keep it monotonically increasing.
             current_tag=$(git tag -l "v*" | grep --invert-match '-' | sort --reverse -V  | sed -n 1p)
+            echo "current git tag is ${current_tag}"
             current_tag=${current_tag#?}  
             # current_tag is now the version we want to set our poetry version so
             # that we can bump the version
@@ -202,6 +203,7 @@ jobs:
           poetry config repositories.test-pypi https://test.pypi.org/legacy/
           poetry config pypi-token.test-pypi ${{ secrets.TEST_PYP_TOKEN }}
           poetry publish -r test-pypi
+        continue-on-error: true
 
       - name: if publish to pypi failed revert main and delete release branch
         if: steps.publish-to-pypi.outcome != 'success'
@@ -216,7 +218,12 @@ jobs:
       - name: if publish to pypi failed delete release and tag on github
         if: steps.publish-to-pypi.outcome != 'success'
         uses: dev-drprasad/delete-tag-and-release@v0.2.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: $ {{ env.NEW_TAG }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ env.NEW_TAG }}
 
+      - name: if publish to pypi failed delete release and tag on github
+        if: steps.publish-to-pypi.outcome != 'success'
+        run: |
+          exit 1
