@@ -140,7 +140,8 @@ jobs:
           # Finally because we want to be able to use the variable in later
           # steps we set a NEW_TAG environmental variable
           echo "NEW_TAG=$(echo ${NEW_TAG})" >> $GITHUB_ENV
-          # we don't want to update pyproject.toml yet. don't want this change to create merge conflict
+          # we don't want to update pyproject.toml yet. don't want this change to create merge conflict.
+          # we don't really persist right version in pyproject.toml to figure out the next version. we use git tags.
           git restore pyproject.toml
           
 
@@ -155,8 +156,7 @@ jobs:
       #--------------------------------------------------------------
       # merge changes back to main
       #--------------------------------------------------------------
-      - name: Merge changes back to main with PAT
-
+      - name: Merge changes back to main
         run: |
           git checkout main
           git merge ${{ github.event.inputs.merge_strategy }} releases/${NEW_TAG}
@@ -168,41 +168,16 @@ jobs:
           poetry run pytest --timeout=${{ inputs.run_tests_wait }} tests
         continue-on-error: true
 
-      #------------------------------------------------------------------------
-      # wait for tests to succeed on main. If test fail this workflow will exit
-      #------------------------------------------------------------------------
-#      - name: Wait for tests to succeed
-#        uses: fountainhead/action-wait-for-check@v1.1.0
-#        id: wait-for-tests
-#        with:
-#          token: ${{ env.GITHUB_TOKEN }}
-#          checkName: run-tests
-#          ref: main
-#          timeoutSeconds: ${{ inputs.run_tests_wait }}
-
       - name: Do something with a failing build
         if: steps.run-tests-on-main.outcome != 'success'
         run: |
-          echo "tests on main did not succeed. exit code is ${{ steps.run-tests-on-main.outcome }}"
-          git checkout main
+          echo "tests on main did not succeed. Outcome is ${{ steps.run-tests-on-main.outcome }}"
           git reset --hard HEAD~1 
           git push origin HEAD --force
           git branch -d releases/${NEW_TAG}
           git push origin --delete releases/${NEW_TAG}
           echo "reverted changes to main and removed release branch"
           exit 1
-
-#      - name: Set correct version number in pyproject.toml
-#        run: |
-#          poetry version ${NEW_TAG#?}
-#          git add pyproject.toml
-#          git commit -m "updated version in pyproject.toml"
-#          git push
-#          git checkout releases/${NEW_TAG}
-#          poetry version ${NEW_TAG#?}
-#          git add pyproject.toml
-#          git commit -m "updated version in pyproject.toml"
-#          git push
 
       - name: Create build artifacts
         run: |
@@ -222,7 +197,26 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish to test pypi
+        id: publish-to-pypi
         run: |
           poetry config repositories.test-pypi https://test.pypi.org/legacy/
-          poetry config pypi-token.test-pypi ${{ secrets.TEST_PYPI_TOKEN }}
+          poetry config pypi-token.test-pypi ${{ secrets.TEST_PYP_TOKEN }}
           poetry publish -r test-pypi
+
+      - name: if publish to pypi failed revert main and delete release branch
+        if: steps.publish-to-pypi.outcome != 'success'
+        run: |
+          echo "publish to pypi did not succeed. Outcome is ${{ steps.publish-to-pypi.outcome }}"
+          git reset --hard HEAD~1 
+          git push origin HEAD --force
+          git branch -d releases/${NEW_TAG}
+          git push origin --delete releases/${NEW_TAG}
+          echo "reverted changes to main and removed release branch"
+
+      - name: if publish to pypi failed delete release and tag on github
+        if: steps.publish-to-pypi.outcome != 'success'
+        uses: dev-drprasad/delete-tag-and-release@v0.2.1
+        with:
+          tag_name: $ {{ env.NEW_TAG }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
