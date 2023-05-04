@@ -202,6 +202,7 @@ jobs:
           poetry config repositories.test-pypi https://test.pypi.org/legacy/
           poetry config pypi-token.test-pypi ${{ secrets.TEST_PYP_TOKEN }}
           poetry publish -r test-pypi
+        continue-on-error: true
 
       - name: if publish to pypi failed revert main and delete release branch
         if: steps.publish-to-pypi.outcome != 'success'
@@ -219,4 +220,6 @@ jobs:
         with:
           tag_name: $ {{ env.NEW_TAG }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+         exit 1
 
