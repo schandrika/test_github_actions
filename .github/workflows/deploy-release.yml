@@ -220,6 +220,5 @@ jobs:
         with:
           tag_name: $ {{ env.NEW_TAG }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-         exit 1
+
 
