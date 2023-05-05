@@ -38,8 +38,11 @@ env:
   PROJECT_NAME: test-github-action-call-reusable
 
 jobs:
-
   call-deploy-release:
+    permissions:
+      contents: write  # To push a branch
+      pull-requests: write  # To create a PR from that branch
+
     uses: eclipse-volttron/github-tooling/.github/workflows/deploy-release.yml@main
     with:
       merge-strategy: ${{ inputs.merge-strategy }}
