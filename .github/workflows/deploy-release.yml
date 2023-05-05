@@ -220,6 +220,8 @@ jobs:
       - name: if publish to pypi failed delete release and tag on github
         if: steps.publish-to-pypi.outcome != 'success'
         uses: dev-drprasad/delete-tag-and-release@v0.2.1
+        env:
+          GITHUB_TOKEN: ${{ env.GIT_TOKEN }}
         with:
           tag_name: ${{ env.NEW_TAG }}
 
