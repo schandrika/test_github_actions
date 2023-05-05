@@ -1,0 +1,50 @@
+name: Deploy Release Artifacts
+
+on:
+  workflow_dispatch:
+    inputs:
+      merge-strategy:
+        description: 'Merge strategy and strategy options. Used only in case of merge conflicts'
+        required: false
+        default: ''
+        type: string
+      run-tests-wait:
+        description: 'Wait time to run test after merge to main'
+        required: false
+        default: 60
+        type: number
+      bump-rule:
+        description: 'Bump rule for computing next release version number.'
+        required: false
+        default: 'prerelease'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - prepatch
+          - preminor
+          - premajor
+          - prerelease
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  LANG: en_US.utf-8
+  LC_ALL: en_US.utf-8
+  PYTHON_VERSION: '3.10'
+  PROJECT_NAME: test-github-action-call-reusable
+
+jobs:
+
+  call-deploy-release:
+    uses: eclipse-volttron/github-tooling/.github/workflows/deploy-release.yml@main
+    with:
+      merge-strategy: ${{ inputs.merge-strategy }}
+      run-tests-wait: ${{ inputs.run-tests-wait }}
+      bump-rule: ${{ inputs.bump-rule }}
+      secrets:
+        git-token: ${{ secrets.GA_PAT_TOKEN }}
+        pypi-token: ${{ secrets.TEST_PYPI_TOKEN }}
