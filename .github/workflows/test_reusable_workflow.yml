@@ -49,7 +49,7 @@ jobs:
       first-release-version: ${{ inputs.first-release-version }}
       bump-rule: ${{ inputs.bump-rule }}
       run-tests-wait: 600
-      publish-to-test-pypi: true
+      publish-to-test-pypi: false
     secrets:
       git-token: ${{ secrets.GA_PAT_TOKEN }}
       pypi-token: ${{ secrets.TEST_PYPI_TOKEN }}
