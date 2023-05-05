@@ -58,7 +58,7 @@ jobs:
       contents: write  # To push a branch
       pull-requests: write  # To create a PR from that branch
 
-    uses: schandrika/github-tooling/.github/workflows/deploy-release.yml@main
+    uses: eclipse-volttron/github-tooling/.github/workflows/deploy-release.yml@main
     with:
       merge-strategy: ${{ inputs.merge-strategy }}
       first-release-version: ${{ inputs.first-release-version }}
