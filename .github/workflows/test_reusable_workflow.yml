@@ -26,11 +26,6 @@ on:
           - preminor
           - premajor
           - prerelease
-      run-tests-wait:
-        description: 'Wait time to run test after merge to main'
-        required: false
-        default: 60
-        type: number
       publish-to-test-pypi:
         description: 'Set to true if you want to publish to https://test.pypi.org/legacy/ instead of pypi.org'
         required: false
@@ -68,7 +63,7 @@ jobs:
       merge-strategy: ${{ inputs.merge-strategy }}
       first-release-version: ${{ inputs.first-release-version }}
       bump-rule: ${{ inputs.bump-rule }}
-      run-tests-wait: ${{ inputs.run-tests-wait }}
+      run-tests-wait: 600
       publish-to-test-pypi: ${{ inputs.publish-to-test-pypi }}
     secrets:
 #      git-token: ${{ secrets.GA_PAT_TOKEN }}
