@@ -9,9 +9,9 @@ on:
         default: ''
         type: string
       first-release-version:
-        description: 'Version number to use if this is the first release'
+        description: 'Version number to use. If not provided will start with 0.1.0rc0 and use bump-rule to get to next version'
         required: false
-        default: 0.1.0rc0
+        default: ''
         type: string
       bump-rule:
         description: 'Bump rule for computing next release version number.'
