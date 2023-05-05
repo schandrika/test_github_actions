@@ -46,7 +46,7 @@ jobs:
     uses: eclipse-volttron/github-tooling/.github/workflows/deploy-release.yml@main
     with:
       merge-strategy: ${{ inputs.merge-strategy }}
-      run-tests-wait: ${{ inputs.run-tests-wait }}
+      run-tests-wait: 60
       bump-rule: ${{ inputs.bump-rule }}
     secrets:
       git-token: ${{ secrets.GA_PAT_TOKEN }}
