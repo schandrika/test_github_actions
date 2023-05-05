@@ -68,7 +68,7 @@ jobs:
       merge-strategy: ${{ inputs.merge-strategy }}
       first-release-version: ${{ inputs.first-release-version }}
       bump-rule: ${{ inputs.bump-rule }}
-      run-tests-wait: Number(${{ inputs.merge-strategy }})
+      run-tests-wait: ${{ number(inputs.run-tests-wait) }}
       publish-to-test-pypi: ${{ inputs.publish-to-test-pypi }}
     secrets:
 #      git-token: ${{ secrets.GA_PAT_TOKEN }}
