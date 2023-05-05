@@ -8,11 +8,11 @@ on:
         required: false
         default: ''
         type: string
-      run-tests-wait:
-        description: 'Wait time to run test after merge to main'
+      first-release-version:
+        description: 'Version number to use if this is the first release'
         required: false
-        default: 60
-        type: number
+        default: 0.1.0rc0
+        type: string
       bump-rule:
         description: 'Bump rule for computing next release version number.'
         required: false
@@ -26,6 +26,26 @@ on:
           - preminor
           - premajor
           - prerelease
+      run-tests-wait:
+        description: 'Wait time to run test after merge to main'
+        required: false
+        default: 60
+        type: number
+      publish-to-test-pypi:
+        description: 'Set to true if you want to publish to https://test.pypi.org/legacy/ instead of pypi.org'
+        required: false
+        default: false
+        type: boolean
+      git-token-name:
+        description: 'Name of the variable that holds the github access token'
+        required: false
+        default: 'AUTO_PROJECT_PAT'
+        type: string
+      pypi-token-name:
+        description: 'Name of the variable that holds the github access token'
+        required: false
+        default: 'PYPI_TOKEN'
+        type: string
 
 defaults:
   run:
@@ -43,11 +63,15 @@ jobs:
       contents: write  # To push a branch
       pull-requests: write  # To create a PR from that branch
 
-    uses: eclipse-volttron/github-tooling/.github/workflows/deploy-release.yml@main
+    uses: schandrika/github-tooling/.github/workflows/deploy-release.yml@main
     with:
       merge-strategy: ${{ inputs.merge-strategy }}
-      run-tests-wait: 60
+      first-release-version: ${{ inputs.first-release-version }}
       bump-rule: ${{ inputs.bump-rule }}
+      run-tests-wait: Number(${{ inputs.merge-strategy }})
+      publish-to-test-pypi: ${{ inputs.publish-to-test-pypi }}
     secrets:
-      git-token: ${{ secrets.GA_PAT_TOKEN }}
-      pypi-token: ${{ secrets.TEST_PYPI_TOKEN }}
+#      git-token: ${{ secrets.GA_PAT_TOKEN }}
+#      pypi-token: ${{ secrets.TEST_PYPI_TOKEN }}
+      git-token: ${{ format('secrets.{0}', inputs.git-token-name) }}
+      pypi-token: ${{ format('secrets.{0}', inputs.pypi-token-name) }}
