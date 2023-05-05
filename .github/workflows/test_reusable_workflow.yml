@@ -8,7 +8,7 @@ on:
         required: false
         default: ''
         type: string
-      first-release-version:
+      release-version:
         description: 'Version number to use. If not provided will start with 0.1.0rc0 and use bump-rule to get to next version'
         required: false
         default: ''
@@ -46,7 +46,7 @@ jobs:
     uses: schandrika/github-tooling/.github/workflows/deploy-release.yml@main
     with:
       merge-strategy: ${{ inputs.merge-strategy }}
-      first-release-version: ${{ inputs.first-release-version }}
+      release-version: ${{ inputs.release-version }}
       bump-rule: ${{ inputs.bump-rule }}
       run-tests-wait: 600
       publish-to-test-pypi: false
