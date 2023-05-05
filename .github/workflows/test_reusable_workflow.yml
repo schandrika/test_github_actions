@@ -38,12 +38,15 @@ env:
   PROJECT_NAME: test-github-action-call-reusable
 
 jobs:
-
   call-deploy-release:
+    permissions:
+      contents: write  # To push a branch
+      pull-requests: write  # To create a PR from that branch
+
     uses: eclipse-volttron/github-tooling/.github/workflows/deploy-release.yml@main
     with:
       merge-strategy: ${{ inputs.merge-strategy }}
-      run-tests-wait: ${{ inputs.run-tests-wait }}
+      run-tests-wait: 60
       bump-rule: ${{ inputs.bump-rule }}
     secrets:
       git-token: ${{ secrets.GA_PAT_TOKEN }}
