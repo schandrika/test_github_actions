@@ -1,4 +1,4 @@
-name: Deploy Release Artifacts
+name: Call Deploy release workflow
 
 on:
   workflow_dispatch:
