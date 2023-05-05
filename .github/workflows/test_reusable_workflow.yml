@@ -45,6 +45,6 @@ jobs:
       merge-strategy: ${{ inputs.merge-strategy }}
       run-tests-wait: ${{ inputs.run-tests-wait }}
       bump-rule: ${{ inputs.bump-rule }}
-      secrets:
-        git-token: ${{ secrets.GA_PAT_TOKEN }}
-        pypi-token: ${{ secrets.TEST_PYPI_TOKEN }}
+    secrets:
+      git-token: ${{ secrets.GA_PAT_TOKEN }}
+      pypi-token: ${{ secrets.TEST_PYPI_TOKEN }}
