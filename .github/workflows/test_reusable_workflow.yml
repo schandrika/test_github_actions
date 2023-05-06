@@ -14,7 +14,7 @@ on:
         default: ''
         type: string
       bump-rule:
-        description: 'Bump rule for computing next release version number.'
+        description: 'Bump rule for computing next release version number.Used if no release-version is provided'
         required: false
         default: 'prerelease'
         type: choice
