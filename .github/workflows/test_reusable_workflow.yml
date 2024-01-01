@@ -43,7 +43,7 @@ jobs:
       contents: write  # To push a branch
       pull-requests: write  # To create a PR from that branch
 
-    uses: schandrika/github-tooling/.github/workflows/deploy-release.yml@main
+    uses: schandrika/github-tooling/.github/workflows/deploy-release.yml@develop
     with:
       merge-strategy: ${{ inputs.merge-strategy }}
       release-version: ${{ inputs.release-version }}
